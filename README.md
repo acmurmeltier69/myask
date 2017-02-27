@@ -35,8 +35,6 @@ This library contains a set of functions and classes I found helpfule when creat
 
 Example:
 `                          
-                    Example: 
- 
 APPNAME = "SAMPLE"
 APPID   = "amzn1.ask.skill.aaaaaaaa-bbbb-cccc-dddd-1234567890ab"
 INTENTS = {
@@ -52,14 +50,12 @@ SLOTS = {
             "MixColor2" : "LIST_OF_COLORS",
             "YesNo"     : "MY_YES_NO"
          }
-
 SLOTTYPES = {
             "LIST_OF_COLORS":[
                 ["RED", ["red", "fire red"]],
                 ["GREEN", ["green"]]
                 ["YELLOW", ["yellow"]]
-                ["BLUE", ["blue"]]
-                
+                ["BLUE", ["blue"]]                
             ],
             "YES_NO_TYPE" :[ 
                 ["YES_CANONICAL",   ["yes", "yep", "of course"]],
