@@ -4,14 +4,15 @@ myask: My Alexa Skills Kit (ASK)  helper library
 (C) 2017 by "acmurmeltier69"
 
 This library contains a set of functions and classes I found helpfule when creating my own Alexa Skills
- h2. Modules in the package
+
+# Modules in the package
   - *myask_appdef*    : a class to manage the application data structure of the skill
-                     The application structure is is loaded from a separate file and is used to 
-                     1) create the "Interaction Model" for Alexa 
-                         - definition of intent structure
-                         - definition of custom slot types
-                     2) read, write and validate slots (using "myask_slots")
-                     3) generate random Alexa output structures for testing the handler (using myask_localtest)
+         The application structure is is loaded from a separate file and is used to 
+         1) create the "Interaction Model" for Alexa 
+                 - definition of intent structure
+                 - definition of custom slot types
+         2) read, write and validate slots (using "myask_slots")
+         3) generate random Alexa output structures for testing the handler (using myask_localtest)
                                          
  - *myask_slots*     : functions to read, normalize (i.e. convert to canonical) and write slot and session attributes
  - *myask_alexaout*  : functions to create output structure for Alexa
@@ -20,7 +21,7 @@ This library contains a set of functions and classes I found helpfule when creat
  - *myask_utterancegen* : tool to generate a large number of input samples for an Alexa skill from a compact generation grammar
  - *myask_localtest* : functions test an aw lambda function on windows
 
- h2. Application Data Structure
+# Application Data Structure
  The core of myask functions is a data structure that describes the application data (intents, slots, values)
  Thee data structure consists of
   - an application name (used in the title of output cards)
@@ -35,7 +36,6 @@ This library contains a set of functions and classes I found helpfule when creat
 Example:
 `                          
                     Example: 
-                    
  
 APPNAME = "SAMPLE"
 APPID   = "amzn1.ask.skill.aaaaaaaa-bbbb-cccc-dddd-1234567890ab"
