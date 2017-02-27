@@ -3,6 +3,19 @@
 # 
 # myask_appdef : A class to work with the intents and slot types of the application
 #
+#   The application structure is is loaded from a separate file and is used to 
+#   1) create the "Interaction Model" for Alexa 
+#       - definition of intent structure
+#       - definition of custom slot types
+#   2) read, write and validate slots (using "myask_slots")
+#   3) generate random Alexa output structures for testing the handler (using myask_localtest)
+#  Note: 
+#       - for each custom slottype, the application definition provides a set of standardized values (canonicals)
+#       - for each canonical value, the application definition provides a set of spoken words (literals) that can be used to express this value
+#                          
+#   Example: 
+#        "YES_NO_TYPE" :[ ["YES_CANONICAL",   ["yes", "yep", "of course"]],
+#                         ["NO_CANONICAL",    ["no", "nope", "no way"]] ]
 ################################################################################
 
 import random

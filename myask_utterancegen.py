@@ -5,8 +5,11 @@
 #
 ################################################################################
 
+import sys
+import argparse
 import re
-
+from idlelib.idle_test.test_io import PseudeOutputFilesTest
+import myask_log
 
 def AddNonterminal(line, non_terminal_list):
     
@@ -24,11 +27,11 @@ def AddNonterminal(line, non_terminal_list):
         return ""
 
 def PrintNonTerminals(non_terminal_list):
-    print ("non-terminals:")
+    myask_log.debug(5, "non-terminals:")
     for nt in non_terminal_list:
-        print "'"+nt+"' ="
+        myask_log.debug(5, "'"+nt+"' =")
         for alternative in non_terminal_list[nt]:
-            print "    '"+alternative+"'"
+            myask_log.debug(5, "    '"+alternative+"'")
 
 def AppendWord(old_list, word):
     # appends word 'word' to all eleements in 'old_list' 
@@ -110,20 +113,20 @@ def createSampleUtterancesFromGrammar(inputfile):
     # --------------------------------------------------------------------------
     
     linecount = 0
-    print ("---->>>Parsing input file"+inputfile)
+    myask_log.debug(3, "---->>>Parsing input file"+inputfile)
     for line in content:
         linecount +=1
         line = line.strip()
         if line == "": continue
         if AddNonterminal(line, non_terminal_list):
-            print("NON-TERMINAL 'found in line "+str(linecount)+": "+line)
+            myask_log.debug(7, "NON-TERMINAL 'found in line "+str(linecount)+": "+line)
         elif line.startswith("#"):
-            print("Comment     "+line)
+            myask_log.debug(7, "Comment     "+line)
         else:
             elements = line.split()
-            print("INTENT       '"+elements[0]+"' found in line"+str(linecount))
+            myask_log.debug(7, "INTENT       '"+elements[0]+"' found in line"+str(linecount))
             input_utterances.append(elements)
-    print ("---->>>Parsing done. "+ str(linecount)+" lines read")
+    myask_log.debug(3, "---->>>Parsing done. "+ str(linecount)+" lines read")
     fin.close()
     
     # --------------------------------------------------------------------------
@@ -136,32 +139,58 @@ def createSampleUtterancesFromGrammar(inputfile):
     linecount = 0
     for input_sentence in input_utterances:
         linecount +=1
-        print "Processing line '"+str(input_sentence)+"'"
+        myask_log.debug(3, "Processing line '"+str(input_sentence)+"'")
         line_alternatives = ProcessLine(input_sentence, non_terminal_list)
         for training_sentence in line_alternatives:
-            print "-> "+training_sentence
+            myask_log.debug(5, "-> "+training_sentence)
         training_corpus.extend(line_alternatives)
      
      
     return training_corpus
 
+################################################################################
+# function for command line usage
+#-------------------------------------------------------------------------------
+
+
+#-------------------------------------------------------------------------------
 def main():
-    inputfile = "inputgrammar.txt"
-    outputfile = "sample_utterances_generated.txt"
+    outputfile =""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbosity", type=int,
+                        help="define output verbosity")
+
+    parser.add_argument("-out", "--outputfile", type=str, 
+                        help="Use local database on the given port on localhost")
+    parser.add_argument("inputfile", help="grammar file as input")
+
+    args = parser.parse_args()    
+    
+    if args.verbosity:
+        myask_log.SetDebugLevel(args.verbosity)
+
+    if  args.inputfile: inputfile = args.inputfile
+    else: inputfile = "input"
+
+    if args.outputfile: outputfile = args.outputfile
+    else: outputfile = ""
+    
+    myask_log.debug(3, "input: "+inputfile)
+    myask_log.debug(3, "output: "+outputfile)
   
-    sample_utterances = createSampleUtterancesFromGrammar(inputfile)
-    print "SUMMARY"
-    print str(len(sample_utterances))+ " Utterances generated"
+    sample_utterances = createSampleUtterancesFromGrammar(inputfile)    
     
-    # now check all utterances
+    if outputfile == "":
+        for i in range(len(sample_utterances)):
+            line = sample_utterances[i]
+            print line
+    else:
+        fout = open(outputfile, 'w+')
+        for i in range(len(sample_utterances)):
+            line = sample_utterances[i]
+            fout.write(line+"\n")
+        fout.close()
+
     
-    # print utterances to file
-    fout = open(outputfile, 'w+')
-    for i in range(len(sample_utterances)):
-        line = sample_utterances[i]
-#        print "writing line "+str(i)+". --> '"+line+"'"
-        fout.write(line+"\n")
-    fout.close()
-    
-    
-if __name__ == "__main__": main()
+if __name__ == "__main__":
+    main()

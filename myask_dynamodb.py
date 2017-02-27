@@ -15,8 +15,10 @@ import json
 import decimal
 import datetime 
 from botocore.exceptions import ClientError
-from myask import myask_log
+import myask_log
+import argparse
 import os
+
 os.environ["TZ"] = "CET"
 
 DBTYPE = "online"
@@ -34,9 +36,6 @@ def SetDbType(dbtype, resource=""):
     elif dbtype == "offline": # use dynamo  db installed locally
         DBTYPE = "offline"
         return True
-    elif dbtype == "hardcoded": # use hardcoded local user profile
-        DBTYPE = "hardcoded"
-        return True
     else:
         myask_log.error("myadk_dynamodb.SetDbType: invalid dbtype '"+dbtype+"'")
         return False
@@ -51,8 +50,6 @@ def _getDynamoDB():
         dynamodb = boto3.resource('dynamodb', region_name=DBRESOURCE)
     elif DBTYPE == "offline": # use dynamo  db installed locally
         dynamodb = boto3.resource('dynamodb', endpoint_url=DBRESOURCE)
-    elif DBTYPE == "hardcoded": # use hardcoded local user profile
-        dynamodb = ""
     
 
     return dynamodb
@@ -134,7 +131,7 @@ class dynamoDB:
                             ':t' : get_date_str()
                     },
                     ReturnValues="UPDATED_NEW")
-        myask_log.debug(3, "UpdateUserProfileTimeStamps: " + str(response))
+        myask_log.debug(5, "Updating UserProfileTimeStamps: " + str(response))
 
         return True
  
@@ -286,3 +283,109 @@ def CreateNewTable(tablename):
     table_status = table.table_status
     myask_log.debug(0, "Created table '"+tablename+"'. Table status:" + table_status)
     return table_status
+
+################################################################################
+#
+# function for command line usage
+#
+################################################################################
+#-------------------------------------------------------------------------------
+
+
+def readJsonProfileFromFile(filename):   
+    try:
+        jsonfile = open(filename, 'r')
+        profile = json.load(jsonfile)
+    except IOError:
+        print( "cannot read file '"+filename+"'")
+    except:
+        print("Unexpected error when reading json:", sys.exc_info()[0])
+        raise
+    else:
+        print(" profile: "+str(profile))
+        return profile
+    
+def main():
+    # parse command line options
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbosity", type=int,
+                        help="define output verbosity")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-create", "--create_table", action="store_true",
+                        help="Creates new database table")
+    group.add_argument("-scan", "--scan_items", action="store_true",
+                        help="Prints summary of complete scan of profiles")
+    group.add_argument("-get", "--get_item", type=str,
+                        help="Returns profile for given user ID")
+    group.add_argument("-stat", "--item_statistics", type=str,
+                        help="Returns access statistics for given user ID")
+    group.add_argument("-add", "--add_item", type=str,
+                        help="Add item with given ID to the database")
+    group.add_argument("-upd", "--update_item", type=str,
+                        help="Update item with given ID in the database")
+    group.add_argument("-del", "--delete_item", type=str,
+                        help="Delete item with given ID from the database")
+    parser.add_argument("-profile", "--Profile_JSON_FILE", type=str, 
+                        help="JSON file with user profile structure")
+    parser.add_argument("-offline", "--offline_port", type=int, 
+                        help="Use local database on the given port on localhost")
+    parser.add_argument("table", help="database table name")
+
+    args = parser.parse_args()    
+    
+    if  args.table: tablename = args.table
+    else: tablename = "TABLE"
+    
+
+    if args.verbosity:
+        myask_log.SetDebugLevel(args.verbosity)
+        
+    if args.offline_port:
+        offline_endpoint  = "http://localhost:"+str(args.offline_port)
+        SetDbType("offline", offline_endpoint)
+        
+    if args.create_table:
+        CreateNewTable(tablename)    
+    else:
+        databasetable = dynamoDB(tablename)
+        if args.scan_items:
+            myask_log.debug(5, "Printing statistics")
+            databasetable.ScanAllProfiles(True)
+        elif args.get_item:
+            user_id = str(args.get_item)
+            myask_log.debug(5, "Fetching item '"+user_id+"'")
+            profile = databasetable.FetchUserProfile(user_id)
+            print("Profile for user "+user_id+":")
+            print(profile)
+        elif args.item_statistics:
+            user_id = str(args.item_statistics)
+            (created,num_queries,last_query) =  databasetable.GetStatistics(user_id)
+            print ("Created    : "+created)
+            print ("Last Query : "+last_query)
+            print ("Num queries: "+str(num_queries))
+        elif args.add_item:
+            user_id = str(args.add_item)
+            myask_log.debug(5, "Adding new item '"+str(user_id)+"'")
+            if args.Profile_JSON_FILE:
+                profile = readJsonProfileFromFile(args.Profile_JSON_FILE)
+            else:
+                profile = {}
+            databasetable.CreateNewUserProfile(user_id, profile)
+        elif args.update_item:
+            user_id = str(args.update_item)
+            myask_log.debug(5, "Updating item '"+str(user_id)+"'")
+            if args.Profile_JSON_FILE:
+                profile = readJsonProfileFromFile(args.Profile_JSON_FILE)
+            else:
+                profile = {}
+            databasetable.UpdateUserProfile(user_id, profile)
+        elif args.delete_item:
+            user_id = str(args.delete_item)
+            myask_log.debug(5, "Deleting item '"+user_id+"'")
+            databasetable.DeleteUserProfile(user_id)
+        else:
+            myask_log.error("Missing command")
+            parser.print_help()
+    
+if __name__ == "__main__":
+    main()
