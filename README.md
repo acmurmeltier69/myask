@@ -16,9 +16,12 @@ This library contains a set of functions and classes I found helpfule when creat
                        - For each custom slottype, the application definition provides a set of standardized values (canonicals)
                        - for each canonical value, the application definition provides a set of spoken words (literals) that can be used
                           to express this value
+                          
                     Example: 
+                    
                         `"YES_NO_TYPE" :[ ["YES_CANONICAL",   ["yes", "yep", "of course"]],
                                          ["NO_CANONICAL",    ["no", "nope", "no way"]] ]`
+                                         
  - *myask_slots*     : functions to read, normalize (i.e. convert to canonical) and write slot and session attributes
  - *myask_alexaout*  : functions to create output structure for Alexa
  - *myask_log*       : functions for logging (debug, print, error) and error counting
