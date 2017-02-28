@@ -3,7 +3,14 @@
 # 
 # myask_appdef : A class to work with the intents and slot types of the application
 #
-#   The application structure is is loaded from a separate file and is used to 
+#-------------------------------------------------------------------------------
+# https://github.com/acmurmeltier69/myask
+# Written 2017 by acmurmeltier69 (acmurmeltier69@mnbvcx.eu)
+# Shared under GNU GENERAL PUBLIC LICENSE Version 3
+# https://github.com/acmurmeltier69/myask
+#-------------------------------------------------------------------------------
+# 
+# The application structure is is loaded from a separate file and is used to 
 #   1) create the "Interaction Model" for Alexa 
 #       - definition of intent structure
 #       - definition of custom slot types
@@ -17,6 +24,10 @@
 #        "YES_NO_TYPE" :[ ["YES_CANONICAL",   ["yes", "yep", "of course"]],
 #                         ["NO_CANONICAL",    ["no", "nope", "no way"]] ]
 ################################################################################
+
+import sys
+import argparse
+import json
 
 import random
 from datetime import datetime
@@ -316,3 +327,94 @@ class applicationdef:
                 
         resulstructure["slots"] = slotstructure
         return resulstructure
+    
+###############################################################################
+#
+# stand alone usage as command line tool
+#
+# parses application definition file and creates files fo ASK:
+# intent structure --> ROOT+"_intentstruct_generated.js"
+# custom slottypes  --> ROOT+"_customtypes_generated.txt"
+ ###############################################################################
+   
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbosity", type=int,
+                        help="define output verbosity")
+
+    parser.add_argument("-out", "--outputfile_root", type=str, 
+                        help="basename for output files")
+    parser.add_argument("inputfile", help="grammar file as input")
+
+    args = parser.parse_args()    
+    
+    if args.verbosity:
+        myask_log.SetDebugLevel(args.verbosity)
+
+    if  args.inputfile: inputfile = args.inputfile
+    else: inputfile = "input.py" # dummy, we will never get here
+    
+    if inputfile.endswith('.py'):
+        inputfile = inputfile[:-3]
+    else:
+        myask_log.error("application definition file muyst end with #.py'. Got "+inputfile+"'")
+        return
+
+    if args.outputfile_root: output_root = args.outputfile_root
+    else: output_root = ""
+        
+    # now import the application definition from that file
+    try:
+        appdef_module = __import__(inputfile)
+    except ImportError:
+        # Display error message
+        myask_log.error("Could not import appdef file '"+inputfile+"'")
+    else:
+        myask_log.debug(3, "Application definition importet from '"+inputfile+".py'")
+   
+        myask_log.debug(5, "Initializing application definition")
+
+        appdef = applicationdef(appdef_module.APPNAME, 
+                                appdef_module.APPID,
+                                appdef_module.INTENTS, 
+                                appdef_module.SLOTS, 
+                                appdef_module.SLOTTYPES)
+    
+        myask_log.debug(5, "Creating ASK intent structure")
+        intent_json = appdef.CreateIntentDef()
+ 
+   
+        if output_root == "":
+            # print to standard outpt
+            print("=======BEGIN INTENT DEF=====================================\n\n")
+            print intent_json
+            print("\n=======END INTENT DEF=====================================\n\n")
+        else: 
+            intentfile = output_root+"_intentstruct_generated.js"
+            myask_log.debug(3, "Writing intent structure to file '"+intentfile+"'")
+            intentout = open(intentfile, 'w+')
+            intentout.write(intent_json)
+            intentout.close()
+
+        typeinfo = appdef.GetAllSlotLiterals()
+        if output_root == "":
+            # print to standard outpt
+            print("=======BEGIN CUSTOM_TYPE DEFINITIONS========================\n\n")
+            for (slottype, slotliterals) in typeinfo:
+                print("\n--- "+slottype+" ---")
+                for literal in slotliterals:
+                    print literal
+            print("\n=======END CUSTOM_TYPE DEFINITIONS========================\n\n")
+        else: 
+            typefile = output_root+"_customtypes_generated.txt"
+            myask_log.debug(3, "Writing custom data type definitions to file '"+typefile+"'")
+            typeout = open(typefile, 'w+')
+            for (slottype, slotliterals) in typeinfo:
+                typeout.write("\n--- "+slottype+" ---\n")
+                for literal in slotliterals:
+                    typeout.write(literal.encode('utf8')+"\n")
+                    
+            typeout.close()
+            myask_log.debug(3, "Done")
+if __name__ == "__main__":
+    main()

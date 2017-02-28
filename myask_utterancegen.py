@@ -3,6 +3,12 @@
 #
 # myask_utterancegen : functions to generate sample utterances from a grammar
 #
+#-------------------------------------------------------------------------------
+# https://github.com/acmurmeltier69/myask
+# Written 2017 by acmurmeltier69 (acmurmeltier69@mnbvcx.eu)
+# Shared under GNU GENERAL PUBLIC LICENSE Version 3
+# https://github.com/acmurmeltier69/myask
+#-------------------------------------------------------------------------------
 ################################################################################
 
 import sys

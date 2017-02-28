@@ -3,6 +3,12 @@
 #
 # myask_dynamodb : functions for storing user profile info in dynamodb
 #
+#-------------------------------------------------------------------------------
+# https://github.com/acmurmeltier69/myask
+# Written 2017 by acmurmeltier69 (acmurmeltier69@mnbvcx.eu)
+# Shared under GNU GENERAL PUBLIC LICENSE Version 3
+# https://github.com/acmurmeltier69/myask
+#-------------------------------------------------------------------------------
 # Notes:
 # In order to use dynamo db, you need a valid aws account with dynamo db correctly configured
 # When used locally, the system uses the credentials in the file ~/.aws/credentials

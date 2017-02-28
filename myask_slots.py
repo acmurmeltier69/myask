@@ -3,6 +3,12 @@
 #
 # myask_slots : functions to read, normalize and write slot and session attributes
 #
+#-------------------------------------------------------------------------------
+# https://github.com/acmurmeltier69/myask
+# Written 2017 by acmurmeltier69 (acmurmeltier69@mnbvcx.eu)
+# Shared under GNU GENERAL PUBLIC LICENSE Version 3
+# https://github.com/acmurmeltier69/myask
+#-------------------------------------------------------------------------------
 ################################################################################
 
 

@@ -3,6 +3,12 @@
 # 
 # myask_log : functions for logging (debug, print, error) and error counting
 #
+#-------------------------------------------------------------------------------
+# https://github.com/acmurmeltier69/myask
+# Written 2017 by acmurmeltier69 (acmurmeltier69@mnbvcx.eu)
+# Shared under GNU GENERAL PUBLIC LICENSE Version 3
+# https://github.com/acmurmeltier69/myask
+#-------------------------------------------------------------------------------
 ################################################################################
 
 DEBUG_LEVEL = 99

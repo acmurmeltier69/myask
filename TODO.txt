@@ -1,0 +1,7 @@
+- General: better documentation of MyAsk in Github
+- myask_utterancegen.py: validate user utterances agains application definition
+   - detect wrong slot/intent names 
+   - report on coverage for sematic signatures
+- myask_dyamodb: better exception handling
+    - table does not exist
+    - entry oes not exist
