@@ -1,0 +1,15 @@
+# Compiled source #
+###################
+*.pyc
+
+# Packages #
+############
+*.zip
+.project
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+

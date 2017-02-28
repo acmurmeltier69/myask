@@ -13,24 +13,28 @@
 
 import sys
 import argparse
+import codecs
 import re
 from idlelib.idle_test.test_io import PseudeOutputFilesTest
 import myask_log
 
-def AddNonterminal(line, non_terminal_list):
     
-    match = re.match("^(<\S+>)\s*:=\s(.*)$", line)
-    if match:
-        nonterminal = match.group(1)
-        ntrule = match.group(2)
-        nt_elements =  ntrule.split("|")
-        for counter in range(len(nt_elements)):
-            nt_elements[counter] = nt_elements[counter].strip(" ")
-            
-        non_terminal_list[nonterminal] = nt_elements     
-        return nonterminal  
-    else:
-        return ""
+
+def AddNonterminalRule(nonterminal, ntrule, non_terminal_list):
+    myask_log.debug(5, "adding non-terminal '"+nonterminal+"' Rule: '"+ntrule+"'")
+    nt_elements =  ntrule.split("|")
+    for counter in range(len(nt_elements)):
+        nt_elements[counter] = nt_elements[counter].strip(" ")
+        
+    if nonterminal in non_terminal_list: non_terminal_list[nonterminal].append(nt_elements) 
+    else:     non_terminal_list[nonterminal] = nt_elements
+    return True  
+
+def AddIntentRule(intent, rule, input_utterances):
+    if intent in input_utterances: input_utterances[intent].append(rule)   
+    else:   input_utterances[intent] = [rule] 
+    return True  
+
 
 def PrintNonTerminals(non_terminal_list):
     myask_log.debug(5, "non-terminals:")
@@ -101,14 +105,23 @@ def ProcessLine(input_sentence, non_terminal_list):
     
     return current_alternatives
 
+    
+def StripComments(line):
+    line = line.strip()
+    line = line.split('#', 1)[0]
+    line = line.rstrip()
+
+    return line               
+      
 def createSampleUtterancesFromGrammar(inputfile):
     #---------------------------------------------------------------------------
     # reads a generation grammar from 'iputfile' and returns 
     # an array of sample utterances created from that grammar
     #---------------------------------------------------------------------------
-    input_utterances = []
+    input_utterances = {}
     non_terminal_list = {}
-    fin = open(inputfile, 'r')
+#    fin = codecs.open(inputfile, "r", "utf-8")
+    fin = open(inputfile, "r")
     content = fin.readlines()
     
     # --------------------------------------------------------------------------
@@ -122,34 +135,49 @@ def createSampleUtterancesFromGrammar(inputfile):
     myask_log.debug(3, "---->>>Parsing input file"+inputfile)
     for line in content:
         linecount +=1
-        line = line.strip()
-        if line == "": continue
-        if AddNonterminal(line, non_terminal_list):
-            myask_log.debug(7, "NON-TERMINAL 'found in line "+str(linecount)+": "+line)
-        elif line.startswith("#"):
-            myask_log.debug(7, "Comment     "+line)
+        line = StripComments(line)
+
+        if  re.match("^\s*$",line):
+            continue
+        
+        blocks = re.match("^\s*(.*)\s*::=\s*(.*)$", line)
+        if blocks: 
+            leftside = blocks.group(1)
+            leftside = leftside.strip()
+            rightside = blocks.group(2)
+            rightside = rightside.strip()
         else:
-            elements = line.split()
-            myask_log.debug(7, "INTENT       '"+elements[0]+"' found in line"+str(linecount))
-            input_utterances.append(elements)
+            myask_log.error("Invalid Syntax in line '"+line+"'")
+            return ()
+        
+        if re.match("<.*>", leftside): # non terminal rule found
+            myask_log.debug(7, "NON-TERMINAL '"+leftside+"' found in line "+str(linecount))
+            AddNonterminalRule(leftside, rightside, non_terminal_list)
+        else: 
+            AddIntentRule(leftside, rightside,input_utterances)
+
     myask_log.debug(3, "---->>>Parsing done. "+ str(linecount)+" lines read")
     fin.close()
-    
+
+
     # --------------------------------------------------------------------------
     # 1nd step: create all possible output sentence
     # loop over all input utterances
     # For each inout utterance, create variants for all possible (combinations of)
     # non-terminal symbols and optional phrases
     # --------------------------------------------------------------------------
-    training_corpus = []
+    training_corpus = {}
     linecount = 0
-    for input_sentence in input_utterances:
-        linecount +=1
-        myask_log.debug(3, "Processing line '"+str(input_sentence)+"'")
-        line_alternatives = ProcessLine(input_sentence, non_terminal_list)
-        for training_sentence in line_alternatives:
-            myask_log.debug(5, "-> "+training_sentence)
-        training_corpus.extend(line_alternatives)
+    for intent in input_utterances:
+        training_corpus[intent] = []
+        for input_sentence in input_utterances[intent]:
+            linecount +=1
+            myask_log.debug(3, "Processing line ("+intent+") '"+str(input_sentence)+"'")
+            input_words = input_sentence.split(" ")
+            line_alternatives = ProcessLine(input_words, non_terminal_list)
+            for training_sentence in line_alternatives:
+                myask_log.debug(5, "-> "+training_sentence)
+            training_corpus[intent].extend(line_alternatives)
      
      
     return training_corpus
@@ -180,22 +208,27 @@ def main():
 
     if args.outputfile: outputfile = args.outputfile
     else: outputfile = ""
-    
+
     myask_log.debug(3, "input: "+inputfile)
     myask_log.debug(3, "output: "+outputfile)
   
-    sample_utterances = createSampleUtterancesFromGrammar(inputfile)    
-    
+    corpus = createSampleUtterancesFromGrammar(inputfile)    
+        
     if outputfile == "":
-        for i in range(len(sample_utterances)):
-            line = sample_utterances[i]
-            print line
+        for intent in corpus:
+            intent_sentences = corpus[intent] 
+            for i in range(len(intent_sentences)):
+                line = intent +" "+ intent_sentences[i]
+                print line
     else:
         fout = open(outputfile, 'w+')
-        for i in range(len(sample_utterances)):
-            line = sample_utterances[i]
-            fout.write(line+"\n")
+        for intent in corpus:
+            intent_sentences = corpus[intent] 
+            for i in range(len(intent_sentences)):
+                line = intent +" "+ intent_sentences[i]
+                fout.write(line+"\n")
         fout.close()
+
 
     
 if __name__ == "__main__":
