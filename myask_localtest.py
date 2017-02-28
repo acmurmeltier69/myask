@@ -224,3 +224,8 @@ def CreateSessionData(intent, app_id):
     result["version"] = "1.0"
 
     return result
+
+def main():
+    error("This module does not yet offer command line functionality")
+if __name__ == "__main__":
+    main()

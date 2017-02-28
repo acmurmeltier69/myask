@@ -108,4 +108,8 @@ class alexaout:
             output += "\n"
         output += "-------------\n"
         return output    
-    
+
+def main():
+    error("This module does not offer command line functionality")
+if __name__ == "__main__":
+    main()    

@@ -160,4 +160,8 @@ def parse_slots(intent, session, continue_session, input_locale, appdef):
         myask_log.debug(2, "No slots section found")
     myask_log.debug(5, "SLOTS: "+ str(slots))    
     return slots
-    
+
+def main():
+    error("This module does not offer command line functionality")
+if __name__ == "__main__":
+    main()    

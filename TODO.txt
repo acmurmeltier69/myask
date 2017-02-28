@@ -2,6 +2,11 @@
 - myask_utterancegen.py: validate user utterances agains application definition
    - detect wrong slot/intent names 
    - report on coverage for sematic signatures
+
 - myask_dyamodb: better exception handling
     - table does not exist
     - entry oes not exist
+
+ - myask_localtest
+   Allow commandline usage
+   myask_localtest [-single TEST_UTTERANCE | -batch BATCHFILE | -random] appdef handler   
