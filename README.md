@@ -3,10 +3,10 @@ myask: My Alexa Skills Kit (ASK)  helper library
 
 (C) 2017 by "acmurmeltier69"
 
-This library contains a set of functions and classes I found helpfule when creating my own Alexa Skills
+This library contains a set of functions and classes I found helpful when creating my own Alexa Skills
 
 ## Modules in the package
-#### myask_appdef.py 
+### myask_appdef.py 
 a class to manage the application data structure of the skill.
 
 The application structure is is loaded from a separate file and is used to 
@@ -28,16 +28,16 @@ See *Application Data Structure* below
 This module can also be called on the command line: myask_appdef [-out ROOTFILE] appdef
 Call with '--help' for syntax
                                          
-#### myask_slots.py     
+### myask_slots.py     
 Helper functions to read, normalize (i.e. convert to canonical) and write slot and session attributes
 
-#### myask_alexaout.py  
+### myask_alexaout.py  
 Functions to create output structure for Alexa
 
-#### myask_log.py
+### myask_log.py
 Functions for logging (debug, print, error) and error counting
 
-#### myask_dynamodb.py
+### myask_dynamodb.py
 A class and functions for storing user profile info in aws dynamodb
 
 This tool can be called on the commandline to
@@ -50,13 +50,13 @@ This tool can be called on the commandline to
 
 Call with '--help' for syntax
 
-#### myask_utterancegen.py
+### myask_utterancegen.py
 Tool to generate a large number of input samples for an Alexa skill from a compact generation grammar
 This tool can be called from the commandline
 
 Call with '--help' for syntax
 
-#### myask_localtest
+### myask_localtest
 Functions test an aw lambda function on windows
 Can currently not be called from the commandline (maybe later)
 
@@ -69,8 +69,8 @@ Can currently not be called from the commandline (maybe later)
   - a list of intents with a list of slots for each intent
   - the definition of the slot type for each slot
   - the definition of custom slot types
-  -- For each custom slottype, the application definition provides a set of standardized values (canonicals)
- -- for each canonical value, the application definition provides a set of spoken words (literals) that can be used to express this value
+   - For each custom slottype, the application definition provides a set of standardized values (canonicals)
+   - for each canonical value, the application definition provides a set of spoken words (literals) that can be used to express this value
 
 Example:
 ```                          
@@ -91,14 +91,14 @@ SLOTS = {
          }
 SLOTTYPES = {
             "LIST_OF_COLORS":[
-                ["RED", ["red", "fire red"]],
-                ["GREEN", ["green"]]
-                ["YELLOW", ["yellow"]]
-                ["BLUE", ["blue"]]                
+                ["RED", [u"red", u"fire red"]],
+                ["GREEN", [u"green"]]
+                ["YELLOW", [u"yellow"]]
+                ["BLUE", [u"blue"]]                
             ],
             "YES_NO_TYPE" :[ 
-                ["YES_CANONICAL",   ["yes", "yep", "of course"]],
-                ["NO_CANONICAL",    ["no", "nope", "no way"]] 
+                ["YES_CANONICAL",   [u"yes", u"yep", u"of course"]],
+                ["NO_CANONICAL",    [u"no",  u"nope", u"no way"]] 
             ]
    }
 ```
