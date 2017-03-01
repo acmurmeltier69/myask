@@ -11,11 +11,8 @@
 #-------------------------------------------------------------------------------
 ################################################################################
 
-import sys
 import argparse
-import codecs
 import re
-from idlelib.idle_test.test_io import PseudeOutputFilesTest
 import myask_log
 
     
