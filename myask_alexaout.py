@@ -90,26 +90,25 @@ class alexaout:
         # PARAMETERS: slots
         # RETURN: String with slot info
         #---------------------------------------------------------------------------
-        output = "\n-----Slots----\n"
+        output = u"\n-----Slots----\n"
         for slotname in slots:
             if slotname.endswith(".literal"):
                 continue
         
             litname = slotname +".literal"
             if litname in slots:
-                output += u'   {:s}={:s}({:s})'.format(slotname, slots[slotname].decode("unicode-escape"), slots[litname].decode("unicode-escape"))
+                output += u" '"+slotname+u"'='"+slots[slotname]+u"'("+unicode(slots[litname])+u")"
             else:
                 slotval = slots[slotname]
-                if isstring(slotval): 
-                    slotval = unicode(slotval.decode("unicode-escape"))
-                else: slotval = str(slotval)
-                output += u'   {:s}={:s}'.format(slotname, slotval)
-            output += " "
-            output += "\n"
-        output += "-------------\n"
+                if not isstring(slotval): 
+                    slotval = str(slotval)
+                output += u" '"+slotname+u"'='"+slotval+u"'"
+            output += u" "
+            output += u"\n"
+        output += u"-------------\n"
         return output    
 
 def main():
-    error("This module does not offer command line functionality")
+    myask_log.error("This module does not offer command line functionality")
 if __name__ == "__main__":
     main()    

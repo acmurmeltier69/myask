@@ -67,7 +67,7 @@ def store_session_slots(intent, slotlist, slots):
                 session_attributes[slotname] = str(slots[slotname])
             
             if slotname+".literal" in slots:
-                session_attributes[slotname+".literal"] = slots[slotname+".literal"].decode("unicode-escape")
+                session_attributes[slotname+".literal"] = slots[slotname+".literal"]
                 
     return session_attributes  
 
@@ -155,13 +155,13 @@ def parse_slots(intent, session, continue_session, input_locale, appdef):
                     slots[inputslot] = literal
                 else:
                     slots[inputslot] = appdef.GetSlotCanonical(inputslot,literal)
-                    slots[inputslot+".literal"] = literal.encode('utf-8')
+                    slots[inputslot+".literal"] = literal
     else:
         myask_log.debug(2, "No slots section found")
     myask_log.debug(5, "SLOTS: "+ str(slots))    
     return slots
 
 def main():
-    error("This module does not offer command line functionality")
+    myask_log.error("This module does not offer command line functionality")
 if __name__ == "__main__":
     main()    
