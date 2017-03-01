@@ -25,9 +25,7 @@
 #                         ["NO_CANONICAL",    ["no", "nope", "no way"]] ]
 ################################################################################
 
-import sys
 import argparse
-import json
 
 import random
 from datetime import datetime
@@ -108,11 +106,13 @@ class applicationdef:
                     intent_json += "               \"name\": \""+ slotname+ "\",\n"
                     intent_json += "               \"type\": \""+ slottype+ "\"\n"
                     intent_json += "            }"
-                intent_json += "         ]\n"
+                intent_json += "\n"
+                intent_json += "          ]\n"
             else:
                 intent_json += "\n"
             intent_json += "        }"
-        intent_json += "   ]\n"
+        intent_json += "\n"
+        intent_json += "    ]\n"
         intent_json += "}\n"
 
         return intent_json
@@ -335,7 +335,7 @@ class applicationdef:
 # parses application definition file and creates files fo ASK:
 # intent structure --> ROOT+"_intentstruct_generated.js"
 # custom slottypes  --> ROOT+"_customtypes_generated.txt"
- ###############################################################################
+###############################################################################
    
 def main():
     parser = argparse.ArgumentParser()
