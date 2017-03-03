@@ -14,6 +14,7 @@
 
 import myask_log
 from sre_compile import isstring
+from datetime import datetime
 
 def createAlexaErrorOutput(error_msg, slots):
     out = alexaout()
@@ -96,7 +97,10 @@ class alexaout:
                 continue
         
             litname = slotname +".literal"
-            if litname in slots:
+            if isinstance(slots[slotname], datetime):
+                output += u" '"+slotname+u"'='"+slots[slotname].strftime('%Y-%m-%d')
+                if litname in slots: output +=  u"'("+str(slots[litname])+u")"
+            elif litname in slots:
                 output += u" '"+slotname+u"'='"+slots[slotname]+u"'("+unicode(slots[litname])+u")"
             else:
                 slotval = slots[slotname]
