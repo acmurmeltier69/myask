@@ -44,7 +44,10 @@ class alexaout:
         self.card_text = "" 
     
     def DisplaySpeechOutputOnCard(self):
-        self.card_text = self.speech_output
+        ssmltext = self.speech_output
+        self.card_text = ssmltext.replace('<break/>','\n') 
+        self.card_text = self.card_text.replace('<p>','') 
+        self.card_text = self.card_text.replace('</p>','\n') 
         
     def createOutput(self, slots, session_attributes={}):
         if myask_log.GetDebugLevel()> 3:
