@@ -15,7 +15,6 @@
 #       - definition of intent structure
 #       - definition of custom slot types
 #   2) read, write and validate slots (using "myask_slots")
-#   3) generate random Alexa output structures for testing the handler (using myask_localtest)
 #  Note: 
 #       - for each custom slottype, the application definition provides a set of standardized values (canonicals)
 #       - for each canonical value, the application definition provides a set of spoken words (literals) that can be used to express this value
@@ -91,7 +90,7 @@ class applicationdef:
                 intent_json +=",\n"
             intent_json += "        {\n"
             intent_json += "         \"intent\": \""+ intent +"\""
-            if intent not in ["AMAZON.HelpIntent", "◾AMAZON.StopIntent", "AMAZON.NoIntent", "AMAZON.YesIntent"]:
+            if intent not in ["AMAZON.HelpIntent", "AMAZON.StopIntent", "AMAZON.CancelIntent", "AMAZON.NoIntent", "AMAZON.YesIntent"]:
                 intent_json += ",\n"
                 intent_json += "         \"slots\": ["
                 firstslot = True
