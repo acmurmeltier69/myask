@@ -203,18 +203,19 @@ class applicationdef:
             return text
    
 
-    def GetSlotCanonical(self, slotname, literal):
+    def GetSlotCanonical(self, slotname, literal, strict=False):
         #-----------------------------------------------------------------------      
         #  Public member function of class applicationslots
         # Parameters 
         #  - slotname (string): name of the slot
         #  - literal (string):slot value as spoken by the user 
+        #  - strict If True, '?' is returned if no match was found
         # Returns: (string) canonical, i.e. normalized internal identifier for a slot value
-        #              if the value cannot be mapped, return literal
+        #              if the value cannot be mapped, and strict is False, return literal
         #-----------------------------------------------------------------------
         slotmap = self._get_slot_value_map(slotname)
         if len(slotmap) == 0: 
-            myask_log.error("GetSlotCanonical: slotmap found for slot'"+ slotname + "'")
+            myask_log.error("GetSlotCanonical: no slotmap found for slot'"+ slotname + "'")
             return literal
         elif len(slotmap) == 1 and slotmap[0].startswith("AMAZON"):
             return literal
@@ -225,15 +226,15 @@ class applicationdef:
         for entry in slotmap:
             if len(entry) < 2: 
                 myask_log.error("gen_GetOuputName: incorrect format for dictionary entry '"+str(entry)+"'")
-                return "ERROR"
+                return "?"
             for value in entry[1]:
                 value.encode("utf-8")
                 if value == literal:
                     return entry[0]
       
         myask_log.warning("GetSlotCanonical: No match found for'" + literal + "'")    
-   
-        return literal
+        if strict == True: return "?"
+        else: return literal
 
     def GetAllSlotLiterals(self):
         #-----------------------------------------------------------------------      

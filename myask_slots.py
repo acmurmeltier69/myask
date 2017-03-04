@@ -154,7 +154,7 @@ def parse_slots(intent, session, continue_session, input_locale, appdef):
                 elif appdef.getSlottype(inputslot) == "AMAZON.NUMBER":
                     slots[inputslot] = literal
                 else:
-                    slots[inputslot] = appdef.GetSlotCanonical(inputslot,literal)
+                    slots[inputslot] = appdef.GetSlotCanonical(inputslot,literal, strict=True)
                     slots[inputslot+".literal"] = literal
     else:
         myask_log.debug(2, "No slots section found")
