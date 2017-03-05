@@ -224,42 +224,44 @@ class dynamoDB:
             print("DeleteItem succeeded")
             return True
 
-    def printProfileSummary(self, dbitem):
+    def printProfileSummary(self, dbitem, profilefields):
         user_id = "---"
         created = "---"
         num_queries = -1
         last_query = "---"
         profile = {}
         if 'UserID' in dbitem:
-            user_id = str(dbitem['UserID'])[:25]
+            user_id = str(dbitem['UserID'])[:25]            
         if 'NumQueries' in dbitem:
             num_queries = int(dbitem['NumQueries'])
         if 'Created' in dbitem:
             created = str(dbitem['Created'])[:16]
         if 'LastQuery' in dbitem:
             last_query = str(dbitem['LastQuery'])[:16]
-        if 'Profile' in dbitem:
-            profile = dbitem['Profile']
+        res_str = "UserID: {:25s} #:{:5d} Created: {:17s} Last: {:17s}:".format(user_id, num_queries, created, last_query)
             
-        print("UserID: {:25s} #:{:5d} Created: {:17s} Last: {:17s}: {:s}".format(user_id, num_queries, created, last_query, str(profile)))
+        if 'Profile' in dbitem:
+            res_str += "Profile: {"
+            if profilefields == ["ALL"]:
+                res_str+= str(dbitem['Profile'])
+            else:
+                for field in profilefields:
+                    if field in dbitem['Profile']:
+                        res_str += "'"+field +"' : '"+ str(dbitem['Profile'][field]) +"'"
+            res_str += "}"
+        print(res_str)
         
-    def ScanAllProfiles(self, summary=True):
+        
+    def ScanAllProfiles(self, profilefields=["ALL"]):
         response = self._table.scan()
 
         for i in response['Items']:
-            if summary:
-                self.printProfileSummary(i)
-            else:
-                print(json.dumps(i, cls=DecimalEncoder))
-
+            self.printProfileSummary(i, profilefields)
             while 'LastEvaluatedKey' in response:
                 response = self._table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
 
                 for i in response['Items']:
-                    if summary:
-                        self.printProfileSummary(i)
-                    else:
-                        print(json.dumps(i, cls=DecimalEncoder))
+                    self.printProfileSummary(i, profilefields)
                     
 ################################################################################
 #  end of class dynamoDB
@@ -356,7 +358,7 @@ def main():
         databasetable = dynamoDB(tablename)
         if args.scan_items:
             myask_log.debug(5, "Printing statistics")
-            databasetable.ScanAllProfiles(True)
+            databasetable.ScanAllProfiles(["source"])
         elif args.get_item:
             user_id = str(args.get_item)
             myask_log.debug(5, "Fetching item '"+user_id+"'")
