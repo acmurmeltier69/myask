@@ -14,7 +14,7 @@
 
 import myask_log
 import re
-from datetime import datetime
+from datetime import datetime, date
 
 CONST_UNDEF_DURATION = 99
 FAKEDATE_EVENT_NOT_FOUND = "1988-01-01"
@@ -58,6 +58,8 @@ def store_session_slots(intent, slotlist, slots):
             slottype = type(val)
             if isinstance(val, datetime):
                 session_attributes[slotname] = "DATE:"+val.strftime('%Y-%m-%d')
+            elif isinstance(val, date):
+                session_attributes[slotname] = "DATE:"+val.strftime('%Y-%m-%d')
             elif slottype == list:
                 # todo: print/read sequence
                 session_attributes[slotname] = str(slots[slotname])
@@ -74,32 +76,32 @@ def store_session_slots(intent, slotlist, slots):
 def readAmazonDate(date_str):
     #check for exact date e.g. 2015-11-25.
     if re.match("\d\d\d\d-\d\d-\d\d$", date_str): 
-        start_date = datetime.strptime(date_str, "%Y-%m-%d")
+        start_date = datetime.strptime(date_str, "%Y-%m-%d").date()
         duration = 1
     #check for weekend e.g. 2015-W49-WE
     elif re.match("\d\d\d\d-W\d\d-WE$", date_str): 
         tmp_str = date_str+ ":7"
-        start_date = datetime.strptime(tmp_str, "%Y-W%W:%w")
+        start_date = datetime.strptime(tmp_str, "%Y-W%W:%w").date()
         duration = 2
     #check for week e.g. 2015-W49
     elif re.match("\d\d\d\d-W\d+$", date_str): 
         tmp_str= date_str+":0"
-        start_date = datetime.strptime(tmp_str, "%Y-W%W:%w")
+        start_date = datetime.strptime(tmp_str, "%Y-W%W:%w").date()
         duration = 7
     #check for month e.g. 2015-12
     elif re.match("\d\d\d\d-\d+$", date_str): 
         tmp_str= date_str +"-01"
-        start_date = datetime.strptime(tmp_str, "%Y-%m-%d")
+        start_date = datetime.strptime(tmp_str, "%Y-%m-%d").date()
         duration = 30
     #check for year e.g. 2015
     elif re.match("\d\d\d\d$", date_str): 
         tmp_str= date_str+"-01-01"
-        start_date = datetime.strptime(tmp_str, "%Y-%m-%d")
+        start_date = datetime.strptime(tmp_str, "%Y-%m-%d").date()
         duration = 365
     #handle unknown dates
     else:
         myask_log.error(" unknown date format '" + date_str +"'")
-        start_date = datetime.today() 
+        start_date = date.today() 
         duration = CONST_UNDEF_DURATION
     return (start_date, duration)
 #-------------------------------------------------------------------------------
@@ -137,7 +139,7 @@ def parse_slots(intent, session, continue_session, input_locale, appdef):
             for sessionslot in session_attributes:
                 if re.match("DATE:\d\d\d\d-\d+-\d+$", session_attributes[sessionslot]): 
                     tmp_str= session_attributes[sessionslot]
-                    slots[sessionslot] = datetime.strptime(tmp_str, "DATE:%Y-%m-%d")
+                    slots[sessionslot] = time.strptime(tmp_str, "DATE:%Y-%m-%d").date()
                 else: slots[sessionslot] = session_attributes[sessionslot]
         else:
             myask_log.error("SESSION_ATTRIBUTES: ERROR NO ATTRIBUTES FOUND \n"+ str(session) +"\nEND_SESSION_ATTRIBUTES")
