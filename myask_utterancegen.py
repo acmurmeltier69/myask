@@ -179,6 +179,43 @@ def createSampleUtterancesFromGrammar(inputfile):
      
     return training_corpus
 
+def WriteCorpusToFile(corpus, outputfile):
+    #--------------------------------------------------------------------------
+    # writes all utternaces of the corpus to 'outputfile'
+    # If 'outputfile' is empty, prints to STDOUT
+    # returns number of samples generated
+    #--------------------------------------------------------------------------
+    samplecount = 0
+    if outputfile =="": # print to STDOUT instead
+        for intent in corpus:
+            intent_sentences = corpus[intent] 
+            for i in range(len(intent_sentences)):
+                line = intent +" "+ intent_sentences[i]
+                print line
+                samplecount +=1
+    else:
+        myadk_log.debug(5, "Writing sample utterances to file '"+outputfile+"'")
+        fout = open(outputfile, 'w+')
+        for intent in corpus:
+            intent_sentences = corpus[intent] 
+            for i in range(len(intent_sentences)):
+                line = intent +" "+ intent_sentences[i]
+                fout.write(line+"\n")
+                samplecount +=1
+        fout.close()
+    return samplecount
+
+def GenerateSamples(grammarfile, outputfile):
+    #--------------------------------------------------------------------------
+    # Generates utterances from grammar 'grammarfile' and writes the 
+    # result to 'outfile. 
+    # If 'outfile' == '', prints to STDOUT)
+    # returns number of samples generated
+    #--------------------------------------------------------------------------
+    corpus = createSampleUtterancesFromGrammar(grammarfile)  
+    samplecount = WriteCorpusToFile(corpus, outputfile)
+    return samplecount
+    
 ################################################################################
 # function for command line usage
 #-------------------------------------------------------------------------------
