@@ -210,7 +210,7 @@ def CreateSessionData(intent, app_id):
             },
             "attributes": {},
             "user": {
-                "userId": "amzn1.ask.account.AEFJ2G32AUAOAU4XHZMYRF2YO7IN5RZ6LNDZCKOT3MBMJAIJF4MJGED3764LVY4477AK3MRRUSGHEBLWNFRBAUAGYADOGKNPM4Z4U5LOJIGRBKUKITLDXNHOL33SOAXG2LT3NUBIGDOVFLSDMYQ7IHFZGDOXOCZO465MV65CMBSZIWRUQZJWA7HNA73KPVYMIIS7MS6IPUPGYMQ"
+                "userId": "USER_TEST"
             },
             "new": True
         }

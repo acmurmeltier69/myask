@@ -13,6 +13,7 @@
 ################################################################################
 
 import myask_log
+import re
 from sre_compile import isstring
 from datetime import date
 
@@ -45,16 +46,21 @@ class alexaout:
     
     def DisplaySpeechOutputOnCard(self):
         ssmltext = self.speech_output
-        self.card_text = ssmltext.replace('<break/>','\n') 
+        self.card_text = ssmltext
+        self.card_text = re.sub('<break[^/]*/>','\n', self.card_text) 
         self.card_text = self.card_text.replace('<p>','') 
         self.card_text = self.card_text.replace('</p>','\n') 
+        self.card_text = self.card_text.replace('</say-as>','') 
+        self.card_text = re.sub(r'<say-as[^>]*>','', self.card_text) 
         
     def createOutput(self, slots, session_attributes={}):
-        if myask_log.GetDebugLevel()> 3:
+        if(self.card_text == ""):
+           self.DisplaySpeechOutputOnCard()
+        if myask_log.show_debugslots == True:
             self.card_text = self.printcardslots(slots) + "\n" + self.card_text
     
-            speechlet_response = self.build_speechlet_response()
-            return self.build_response(session_attributes, speechlet_response)
+        speechlet_response = self.build_speechlet_response()
+        return self.build_response(session_attributes, speechlet_response)
 
     def build_speechlet_response(self):
         speech_output = "<speak>"+self.speech_output+"</speak>"

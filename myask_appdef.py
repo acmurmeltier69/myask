@@ -227,6 +227,7 @@ class applicationdef:
                 myask_log.error("gen_GetOuputName: incorrect format for dictionary entry '"+str(entry)+"'")
                 return "?"
             for value in entry[1]:
+                value = value.lower()
                 value.encode("utf-8")
                 if value == literal:
                     return entry[0]

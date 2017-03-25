@@ -21,9 +21,12 @@ import json
 import decimal
 import datetime 
 from botocore.exceptions import ClientError
+from boto3.dynamodb.conditions import Key, Attr
 import myask_log
 import argparse
 import os
+import random
+import code
 
 os.environ["TZ"] = "CET"
 
@@ -180,6 +183,9 @@ class dynamoDB:
             if 'Item' in response:
                 if 'Item' in response and 'Profile' in response['Item']:
                     profile = response['Item']['Profile']
+                    if 'debuguser' in response['Item']:
+                        myask_log.debug(5, "DEBUGUSER: '"+ str(response['Item']['debuguser']) +"'")
+                        profile['debuguser'] = response['Item']['debuguser']
                     myask_log.debug(5,"fetchUserProfile: User profile found:"+ str(userid))
                     # update access log for this user profile
                     self._touchProfile(userid)
@@ -262,7 +268,63 @@ class dynamoDB:
 
                 for i in response['Items']:
                     self.printProfileSummary(i, profilefields)
+
+    def GetExistingOneTimeCode(self,userid):
+        if self._table == "": 
+            myask_log.error("GetStatistics: attempted without valid table")
+        try:
+            response = self._table.get_item(Key={'UserID': userid})
+        except ClientError as e:
+            myask_log.error("GetStatistics: Error: "+e.response['Error']['Message'])
+        else:
+            if 'Item' in response:
+                if 'access_code' in response['Item']: 
+                    code = response['Item']['access_code']
+                    if code != "": return code
                     
+        return ""
+                      
+    def GenerateOneTimeCode(self,userid):
+        #-----------------------------------------------------------------------
+        # Creates a one-time passcode (6-digit number) that allows to 
+        # access the user profile on dynamodb.
+        # The function stores the code in the dynamodb database.
+        # A Web service uses the one-time code to access the database.
+        # Once the code has been used, the web client should remove it from 
+        # the database
+        #-----------------------------------------------------------------------
+
+        #first check if we already have a code for this user
+        existing_code =self.GetExistingOneTimeCode(userid)
+        if  existing_code!= "":
+           return existing_code
+        
+        count = 1 # just to have something with len >0
+        while (count != 0):
+            code = random.randint(100000,999999)
+            myask_log.debug(9, "Checking if code is unique: "+str(code))
+            # check if code number is already in use
+            response = self._table.query(
+                IndexName='access_code-index',
+                KeyConditionExpression=Key('access_code').eq(str(code))
+            )        
+            if 'Count' in response: count = response['Count']
+            else: count = 0
+        # store code number in user profile
+        try:
+            response = self._table.update_item(
+                            Key={'UserID': userid},
+                            UpdateExpression="set access_code = :p",
+                            ExpressionAttributeValues = {':p':  str(code)},
+                            ReturnValues="UPDATED_NEW")
+        except ClientError as e:
+            myask_log.error("UpdateUserProfile: Error: "+e.response['Error']['Message'])
+            return 0
+        else:
+            myask_log.debug(2, "Added code: " + str(code)+ " to user profile")
+
+        return code
+        
 ################################################################################
 #  end of class dynamoDB
 ################################################################################

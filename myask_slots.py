@@ -16,7 +16,7 @@ import myask_log
 import re
 from datetime import datetime, date
 
-CONST_UNDEF_DURATION = 99
+CONST_UNDEF_DURATION = 999
 FAKEDATE_EVENT_NOT_FOUND = "1988-01-01"
 FAKEDATE_CALENDAR_NOT_FOUND = "1999-01-01"
 

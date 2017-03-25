@@ -16,6 +16,8 @@ errorcount = 0
 warningcount = 0
 final_state = ""
 
+show_debugslots = False
+
 def ResetErrorCounters():
     #--------------------------------------------------------------------------
     # resets error and warning counter
