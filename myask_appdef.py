@@ -236,6 +236,23 @@ class applicationdef:
         if strict == True: return "?"
         else: return literal
 
+    def IsValidSlotCanonical(self, slotname, value):
+        slotmap = self._get_slot_value_map(slotname)
+        if len(slotmap) == 0: 
+            myask_log.error("GetSlotCanonical: no slotmap found for slot'"+ slotname + "'")
+            return False
+        elif len(slotmap) == 1 and slotmap[0].startswith("AMAZON"):
+            return True
+        #OK, let's look for the canonical value
+        for entry in slotmap:
+            if len(entry) < 2: 
+                myask_log.error("gen_GetOuputName: incorrect format for dictionary entry '"+str(entry)+"'")
+                return "?"  
+            if entry[0] == value:
+                return True;
+        
+        return False;
+        
     def GetAllSlotLiterals(self):
         #-----------------------------------------------------------------------      
         #  Public member function of class applicationslots
