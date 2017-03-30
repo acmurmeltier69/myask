@@ -10,3 +10,12 @@
  - myask_localtest
    Allow commandline usage
    myask_localtest [-single TEST_UTTERANCE | -batch BATCHFILE | -random] appdef handler   
+   - NEW myask_online_errorlog
+		- store incoming session JSON in global variable
+		- function store(errorcode(str), errordata(json))
+		- stores error in dynamodb table <APPLICATIONNAME>_errorlog
+			Key: userID+datetime
+			errorcode (secondary key)
+			event: original input event (from global variable)
+			errordata 
+	
