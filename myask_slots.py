@@ -80,7 +80,8 @@ def readAmazonDate(date_str):
         duration = 1
     #check for weekend e.g. 2015-W49-WE
     elif re.match("\d\d\d\d-W\d\d-WE$", date_str): 
-        tmp_str = date_str+ ":7"
+        tmp_str = date_str[:-3]
+        tmp_str = tmp_str+ ":6"
         start_date = datetime.strptime(tmp_str, "%Y-W%W:%w").date()
         duration = 2
     #check for week e.g. 2015-W49
