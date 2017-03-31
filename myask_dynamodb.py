@@ -144,6 +144,7 @@ class dynamoDB:
 
         return True
  
+        
     def GetStatistics(self, userid):
         created = ""
         num_queries = -1
@@ -293,12 +294,27 @@ class dynamoDB:
         # Once the code has been used, the web client should remove it from 
         # the database
         #-----------------------------------------------------------------------
-
-        #first check if we already have a code for this user
-        existing_code =self.GetExistingOneTimeCode(userid)
-        if  existing_code!= "":
-           return existing_code
+        myask_log.debug(10, "GenerateOneTimeCode: called for user '"+userid+"'")
         
+        # check if user profile entry exists
+        if self._table == "": 
+            myask_log.error("GetStatistics: attempted without valid table")
+        try:
+            response = self._table.get_item(Key={'UserID': userid})
+        except ClientError as e:
+            myask_log.error("GetStatistics: Error: "+e.response['Error']['Message'])
+        else:
+            if 'Item' in response: # profile exists
+                myask_log.debug(10, "GenerateOneTimeCode: Item found for user '"+userid+"'")
+                if 'access_code' in response['Item']: 
+                    existing_code = response['Item']['access_code']
+                    myask_log.debug(10, "GenerateOneTimeCode: Existing code "+str(existing_code)+"  found for user '"+userid+"' reusing")
+                    if existing_code != "": return existing_code
+            else: # profile does not exist
+                myask_log.debug(10, "GenerateOneTimeCode: Creating new user entry")
+                self.CreateNewUserProfile(userid, {})
+    
+        #now create a random code that is not yet used
         count = 1 # just to have something with len >0
         while (count != 0):
             code = random.randint(100000,999999)
@@ -314,8 +330,11 @@ class dynamoDB:
         try:
             response = self._table.update_item(
                             Key={'UserID': userid},
-                            UpdateExpression="set access_code = :p",
-                            ExpressionAttributeValues = {':p':  str(code)},
+                            UpdateExpression="set access_code = :p, code_created = :t",
+                            ExpressionAttributeValues = {
+                                ':p':  str(code),
+                                ':t' : get_date_str()
+                                },
                             ReturnValues="UPDATED_NEW")
         except ClientError as e:
             myask_log.error("UpdateUserProfile: Error: "+e.response['Error']['Message'])
@@ -324,6 +343,7 @@ class dynamoDB:
             myask_log.debug(2, "Added code: " + str(code)+ " to user profile")
 
         return code
+   
         
 ################################################################################
 #  end of class dynamoDB
