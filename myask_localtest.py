@@ -14,6 +14,7 @@
 import json
 import csv
 import myask_log
+import random
 # import myask_appdef
 
 
@@ -100,15 +101,15 @@ def batchtest(batchfile, testdir, intentfilter, handlerfunction):
                 continue
             elif (len(intentfilter) == 0 or intentfilter[0] == '*'  or test_intent in intentfilter):
                 myask_log.ResetErrorCounters()
-                print ("---Testing intent '"+ test_intent +"'")
-                print (">>>>> "+ user_input)
                 filename = testdir + jsonfile
+                print ("---Testing intent '"+ test_intent +"'")
+                print (">>>>> "+ user_input +"("+filename+")")
                 input_event = ReadInputJSON(filename)
                 TestEvent(input_event, handlerfunction, expected_state)
     printTestStatistics()
     
     
-def randomtest(num_tests, intentfilter, appdef, handlerfunction):
+def randomtest(num_tests, intentfilter, testusers, appdef, handlerfunction):
     #--------------------------------------------------------------------------
     # creates random Alexa NLU output and runs them through the system
     # PARAMETERS:
@@ -123,7 +124,8 @@ def randomtest(num_tests, intentfilter, appdef, handlerfunction):
     for i in range(num_tests):
         myask_log.ResetErrorCounters()        
         sessionresult = appdef.getRandomResponse(intentfilter)
-        event = CreateSessionData(sessionresult, appdef.GetAppID())
+        userid = random.choice(testusers)
+        event = CreateSessionData(sessionresult, appdef.GetAppID(), userid)
         print("Random session" + str(i) +":"+str(event))
         TestEvent(event, handlerfunction)
 
@@ -201,7 +203,7 @@ def TestEvent(event, handlerfunction, expected_result_state=""):
 
     
     
-def CreateSessionData(intent, app_id):
+def CreateSessionData(intent, app_id, userid):
     result = {}
     result["session"] = {
             "sessionId": "SessionId.dc0a5c5b-2ba8-407b-9187-55e76ffb2bf7",
@@ -210,7 +212,7 @@ def CreateSessionData(intent, app_id):
             },
             "attributes": {},
             "user": {
-                "userId": "USER_TEST"
+                "userId": userid
             },
             "new": True
         }

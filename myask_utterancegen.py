@@ -194,7 +194,7 @@ def WriteCorpusToFile(corpus, outputfile):
                 print line
                 samplecount +=1
     else:
-        myadk_log.debug(5, "Writing sample utterances to file '"+outputfile+"'")
+        myask_log.debug(5, "Writing sample utterances to file '"+outputfile+"'")
         fout = open(outputfile, 'w+')
         for intent in corpus:
             intent_sentences = corpus[intent] 

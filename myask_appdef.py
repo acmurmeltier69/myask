@@ -42,7 +42,6 @@ class applicationdef:
         for slotname in self._slotdefinitions:
             self._slotnames.append(slotname)
 
-
     def _get_slot_value_map(self, slotname):
         #-----------------------------------------------------------------------      
         # Private  member function of class applicationslots
@@ -73,6 +72,9 @@ class applicationdef:
 
     def GetAppID(self):
         return self._applicationid
+    
+    def GetAppName(self):    
+        return self._applicationname
     
     def CreateIntentDef(self):
         #---------------------------------------------------------------------------
@@ -115,7 +117,6 @@ class applicationdef:
         intent_json += "}\n"
 
         return intent_json
-        
     def getAllSlots(self):
         #-----------------------------------------------------------------------      
         #  Public member function of class applicationslots

@@ -22,7 +22,7 @@ def createAlexaErrorOutput(error_msg, slots):
     out.speech_output = error_msg
     out.card_text = error_msg
 
-    return out.createOutput()
+    return out.createOutput(slots)
 
 class alexaout:
     #----------------------------------------------------------------------
@@ -108,7 +108,7 @@ class alexaout:
             litname = slotname +".literal"
             if isinstance(slots[slotname], date):
                 output += u" '"+slotname+u"'='"+slots[slotname].strftime('%Y-%m-%d')
-                if litname in slots: output +=  u"'("+str(slots[litname])+u")"
+                if litname in slots: output +=  u"'("+unicode(slots[litname])+u")"
             elif litname in slots:
                 output += u" '"+slotname+u"'='"+slots[slotname]+u"'("+unicode(slots[litname])+u")"
             else:
