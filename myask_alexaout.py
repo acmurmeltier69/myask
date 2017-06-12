@@ -55,7 +55,7 @@ class alexaout:
         
     def createOutput(self, slots, session_attributes={}):
         if(self.card_text == ""):
-           self.DisplaySpeechOutputOnCard()
+            self.DisplaySpeechOutputOnCard()
         if myask_log.show_debugslots == True:
             self.card_text = self.printcardslots(slots) + "\n" + self.card_text
     

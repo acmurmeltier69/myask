@@ -59,14 +59,16 @@ class applicationdef:
 
         if slottype not in self._slottypedefs:
             if slottype == "AMAZON.NUMBER":
-                return ["AMAZON.NUMBER"]
+                return [["AMAZON.NUMBER"]]
             elif slottype == "AMAZON.DE_REGION":
-                return ["AMAZON.DE_REGION"]
+                return [["AMAZON.DE_REGION"]]
             elif slottype == "AMAZON.DATE":
-                return ["AMAZON.DATE"]
+                return [["AMAZON.DATE"]]
+            elif slottype == "AMAZON.DE_FIRST_NAME":
+                return [["AMAZON.DE_FIRST_NAME"]]
             else:
                 myask_log.error("_get_slot_value_map: unknown slottype '" + slottype + "' found for slot '"+ slotname + "'")
-                return []
+                return [[]]
         
         return self._slottypedefs[slottype]    
 
@@ -171,14 +173,14 @@ class applicationdef:
         if len(slotmap) == 0: 
             myask_log.error("GetSlotOuputName: No slotmap found for slot'"+ slotname + "' using canonical '"+canonical+"'")
             return canonical      
-        elif len(slotmap) == 1 and slotmap[0].startswith("AMAZON"): 
+        elif len(slotmap) == 1 and slotmap[0][0].startswith("AMAZON"): 
             return canonical      
           
         for entry in slotmap:
             if len(entry) < 2: 
                 myask_log.error("gen_GetOuputName: incorrect format for dictionary entry '"+str(entry)+"'")
                 return "ERROR"
-            if entry[0] == str(canonical): # we got a match
+            if entry[0].lower() == str(canonical).lower(): # we got a match
                 return entry[1][0]
      
         # if we are here, we did not find a match
@@ -217,7 +219,7 @@ class applicationdef:
         if len(slotmap) == 0: 
             myask_log.error("GetSlotCanonical: no slotmap found for slot'"+ slotname + "'")
             return literal
-        elif len(slotmap) == 1 and slotmap[0].startswith("AMAZON"):
+        elif len(slotmap) == 1 and slotmap[0][0].startswith("AMAZON"):
             return literal
         
         #OK, let's look for the canonical value
@@ -236,13 +238,13 @@ class applicationdef:
         myask_log.warning("GetSlotCanonical: No match found for'" + literal + "'")    
         if strict == True: return "?"
         else: return literal
-
+       
     def IsValidSlotCanonical(self, slotname, value):
         slotmap = self._get_slot_value_map(slotname)
         if len(slotmap) == 0: 
             myask_log.error("GetSlotCanonical: no slotmap found for slot'"+ slotname + "'")
             return False
-        elif len(slotmap) == 1 and slotmap[0].startswith("AMAZON"):
+        elif len(slotmap) == 1 and slotmap[0][0].startswith("AMAZON"):
             return True
         #OK, let's look for the canonical value
         for entry in slotmap:
@@ -254,6 +256,31 @@ class applicationdef:
         
         return False;
         
+    def GetValueLiterals(self, slotname, value):
+        #-----------------------------------------------------------------------      
+        #  Public member function of class applicationslots
+        # Returns a list of all possible literals for a given slot canonical
+        # Parameters 
+        #  'slotname' name of the slot under investigation
+        #  'value' canonical value
+        # Returns: list of all registered literal for the given canonical as array of strings
+        # if the slotname is not known or does not have a custom list , returns []
+        #-----------------------------------------------------------------------        
+        slotmap = self._get_slot_value_map(slotname)
+        if len(slotmap) == 0: 
+            myask_log.error("GetSlotCanonical: no slotmap found for slot'"+ slotname + "'")
+            return []
+        elif len(slotmap) == 1 and slotmap[0][0].startswith("AMAZON"):
+            return []
+        #OK, let's look for the canonical value
+        for entry in slotmap:
+            if len(entry) < 2: 
+                myask_log.error("gen_GetOuputName: incorrect format for dictionary entry '"+str(entry)+"'")
+                return []  
+            if entry[0] == value:
+                return entry[1];
+        
+ 
     def GetAllSlotLiterals(self):
         #-----------------------------------------------------------------------      
         #  Public member function of class applicationslots
@@ -327,6 +354,8 @@ class applicationdef:
                         literal = slotvalue.strftime('%Y-%m-%d')
                     elif slottype == "AMAZON.DE_REGION":
                         literal = random.choice(["nrw","bayern"])
+                    elif slottype == "AMAZON.DE_FIRST_NAME":
+                        literal = random.choice(["Katharina","Konstantin", "Karina", "?", "friedhelm"])
                     else:
                         myask_log.error("_getRandomRespons: Built-in type "+str(slottype)+" not yet handled")
                         literal ="UNKNOWN_AMAZON_TYPE"

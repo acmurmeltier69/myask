@@ -115,19 +115,24 @@ class dynamoDB:
         #-----------------------------------------------------------------------
         return self._sucess
     
-     
+    
     def CreateNewUserProfile(self, userid, profile):
         #-----------------------------------------------------------------------
         # Creates a new user profile for the specified id
         # If the user profile already exists it is overwritten
         #-----------------------------------------------------------------------
+        epoch = datetime.datetime(1970,1,1)
+        expiration = datetime.datetime.now() + datetime.timedelta(days=10)
+        expiration_stamp = int((expiration - epoch).total_seconds())
+
         response = self._table.put_item(
             Item={
                     'UserID': userid,
                     'Created' : get_date_str(),
                     'NumQueries': 0,
                     'LastQuery': get_date_str(), 
-                    'Profile': profile
+                    'Profile': profile,
+                    'ExpirationDate' : expiration_stamp
                  })
         return response
     

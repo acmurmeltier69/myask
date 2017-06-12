@@ -268,6 +268,33 @@ def readMyRelativeDate(date_canon):
     return (start_date, duration)
 
 
+def readMyYear(date_canon):
+    this_year =  int(date.today().strftime("%Y"))
+    
+    # translates a canonicalized relative date into a date + duration information
+    if(date_canon =="?"):
+        myask_log.warning("undefined relative date canonical '?'. Using current date")
+        year = this_year
+    elif  (date_canon =="THIS_YEAR"):
+        year = this_year
+    elif(date_canon =="NEXT_YEAR"):
+        year = this_year+1
+    elif(date_canon =="TWO_YEARS"):
+        year = this_year+2     
+    elif(re.match("\d\d\d\d$", date_canon)): 
+        year = date_canon       
+    else:
+        myask_log.error("invalid relative date canonical '"+date_canon+"'")
+        year = this_year
+
+    tmp_str= str(year)+"-01-01"
+    start_date = datetime.strptime(tmp_str, "%Y-%m-%d").date()
+    duration = 365     
+    return (start_date, duration)
+
+
+
+
 #-------------------------------------------------------------------------------
 # 
 def parse_slots(intent, session, continue_session, input_locale, appdef):
@@ -303,7 +330,7 @@ def parse_slots(intent, session, continue_session, input_locale, appdef):
             for sessionslot in session_attributes:
                 if re.match("DATE:\d\d\d\d-\d+-\d+$", session_attributes[sessionslot]): 
                     tmp_str= session_attributes[sessionslot]
-                    slots[sessionslot] = time.strptime(tmp_str, "DATE:%Y-%m-%d").date()
+                    slots[sessionslot] = datetime.strptime(tmp_str, "DATE:%Y-%m-%d").date()
                 else: slots[sessionslot] = session_attributes[sessionslot]
         else:
             myask_log.error("SESSION_ATTRIBUTES: ERROR NO ATTRIBUTES FOUND \n"+ str(session) +"\nEND_SESSION_ATTRIBUTES")
@@ -318,10 +345,16 @@ def parse_slots(intent, session, continue_session, input_locale, appdef):
                     canonical_date = appdef.GetSlotCanonical(inputslot,literal, strict=True)              
                     (slots[inputslot],slots[inputslot+'.duration']) = readMyRelativeDate(canonical_date)
                     slots[inputslot+'.literal'] = literal
+                elif appdef.getSlottype(inputslot) == "MY_YEARS": 
+                    canonical_date = appdef.GetSlotCanonical(inputslot,literal, strict=True)              
+                    (slots[inputslot],slots[inputslot+'.duration']) = readMyYear(canonical_date)
+                    slots[inputslot+'.literal'] = literal
                 elif appdef.getSlottype(inputslot) == "AMAZON.DATE":                
                     (slots[inputslot],slots[inputslot+'.duration']) = readAmazonDate(literal)
                     slots[inputslot+'.literal'] = literal
                 elif appdef.getSlottype(inputslot) == "AMAZON.NUMBER":
+                    slots[inputslot] = literal
+                elif appdef.getSlottype(inputslot) == "AMAZON.DE_FIRST_NAME":
                     slots[inputslot] = literal
                 else:
                     slots[inputslot] = appdef.GetSlotCanonical(inputslot,literal, strict=True)
